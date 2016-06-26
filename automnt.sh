@@ -4,12 +4,12 @@
 #
 #             Script is inspired by and based on autonfs.sh by Jeroen Hoek
 #             https://github.com/jdhoek/util/blob/master/autonfs.sh
-#		      In contrary to the above mentioned, this script also allows
+#             In contrary to the above mentioned, this script also allows
 #             mounting/ unmounting of any other mount type (e.g. cifs).
 #
-#			  See also:
-#			  http://ubuntuforums.org/showthread.php?t=1389291
-#			  https://help.ubuntu.com/community/AutomaticallyMountNFSSharesWithoutAutofsHowto
+#             See also:
+#             http://ubuntuforums.org/showthread.php?t=1389291
+#             https://help.ubuntu.com/community/AutomaticallyMountNFSSharesWithoutAutofsHowto
 #
 # 2016-06-26  Initial release.
 
@@ -28,7 +28,7 @@ TIMEOUT=2
 # because then the server status has to be checked only once.
 # Example:
 # "-t <TYPE> <DEVICE> <DIR> -o <OPTIONS>"
-# where -o <OPTIONS> is optional.
+# where '-o <OPTIONS>' is optional.
 MOUNTS=(
 	"-t nfs server1:/volume1 /mnt/vol1 -o hard,rsize=8192,wsize=8192,proto=tcp"
 	"-t nfs server1:/volume2 /mnt/vol2 -o hard,rsize=8192,wsize=8192,proto=tcp,ro"
@@ -56,7 +56,7 @@ while true; do
 	LAST_SERVER=""
 
 	# Iterate over each line/mount. The whole line is available in MOUNT now.
-    for MOUNT in "${MOUNTS[@]}"; do
+	for MOUNT in "${MOUNTS[@]}"; do
 		# Divide the line/mount into its single elements.
 		ELEMS=(${MOUNT// / })
 		# Get the server address (third element).
@@ -86,26 +86,25 @@ while true; do
 		fi
 		if [ $STATE -eq 0 ]; then
 			# Server is online.
-	        log "Server '${SERVER}' is up."
-	        if grep -qsE "^([^ ])+ ${ELEMS[3]}" /proc/mounts; then
-	            log "'${ELEMS[3]}' is already mounted."
-	        else
-	            # Mount not mounted, attempt mount.
-	            log "Share not mounted; attempting to mount '${ELEMS[3]}'."
-	            mount ${MOUNT}
-	        fi
+			log "Server '${SERVER}' is up."
+			if grep -qsE "^([^ ])+ ${ELEMS[3]}" /proc/mounts; then
+				log "'${ELEMS[3]}' is already mounted."
+			else
+				# Mount not mounted, attempt mount.
+				log "Share not mounted; attempting to mount '${ELEMS[3]}'."
+				mount ${MOUNT}
+			fi
 		else
 			# Server is offline.
-	        log "Server '${SERVER}' is down."
-	        if grep -qsE "^([^ ])+ ${ELEMS[3]}" /proc/mounts; then
-	            # Mount is still mounted; attempt umount.
-	            log "Cannot reach '${SERVER}', unmounting share '${ELEMS[3]}'."
-	            umount -l ${ELEMS[3]}
+			log "Server '${SERVER}' is down."
+			if grep -qsE "^([^ ])+ ${ELEMS[3]}" /proc/mounts; then
+				# Mount is still mounted; attempt umount.
+				log "Cannot reach '${SERVER}', unmounting share '${ELEMS[3]}'."
+				umount -l ${ELEMS[3]}
 			fi
 		fi
 		# Remember server address for the next line/mount.
 		LAST_SERVER=$SERVER
 	done
-    sleep $INTERVAL
+	sleep $INTERVAL
 done
-
